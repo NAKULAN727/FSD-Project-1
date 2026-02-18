@@ -1,0 +1,12 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #f48024; /* StackOverflow Orange */
+  --font-content: "Segoe UI", system-ui, sans-serif;
+}
+
+body {
+  font-family: var(--font-content);
+  background-color: #f8f9f9;
+  color: #232629;
+}
