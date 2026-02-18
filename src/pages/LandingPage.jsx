@@ -1,8 +1,10 @@
 import React from "react";
 import { Link, Navigate } from "react-router-dom";
 import { Search, Globe, Lock, Shield } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
 
-const LandingPage = ({ currentUser }) => {
+const LandingPage = () => {
+  const { currentUser } = useAuth();
   if (currentUser) {
     return <Navigate to="/questions" replace />;
   }
@@ -18,7 +20,7 @@ const LandingPage = ({ currentUser }) => {
               <span className="text-[#F48024]">code</span>
             </h1>
             <p className="text-lg text-gray-300">
-              Query Overflow is a community-based space to find and contribute
+              Query Flow is a community-based space to find and contribute
               answers to technical challenges, and one of the most popular
               websites in the world.
             </p>
@@ -79,8 +81,8 @@ const LandingPage = ({ currentUser }) => {
             </div>
             <h3 className="text-xl font-bold text-gray-800">Private Q&A</h3>
             <p className="text-gray-600">
-              Level up with Query Overflow for Teams, our private SaaS platform
-              for knowledge sharing and collaboration.
+              Level up with Query Flow for Teams, our private SaaS platform for
+              knowledge sharing and collaboration.
             </p>
           </div>
 

@@ -24,7 +24,7 @@ const QuestionCard = ({ question }) => {
       {/* Content */}
       <div className="flex flex-col gap-2 min-w-0">
         <Link
-          to={`/question/${question.id}`}
+          to={`/question/${question._id || question.id}`}
           className="text-blue-600 hover:text-blue-800 text-lg sm:text-xl font-medium line-clamp-2 break-words visited:text-purple-800 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-blue-500 rounded-sm"
         >
           {question.title}

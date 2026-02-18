@@ -4,7 +4,10 @@ import QuestionCard from "../components/QuestionCard";
 import { allTags } from "../data/dummyData";
 import Tag from "../components/Tag";
 
-const Tags = ({ questions }) => {
+import { useQuestions } from "../context/QuestionContext";
+
+const Tags = () => {
+  const { questions } = useQuestions();
   const [searchParams] = useSearchParams();
   const filter = searchParams.get("filter");
 

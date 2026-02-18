@@ -1,8 +1,11 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import QuestionCard from "../components/QuestionCard";
+import { useQuestions } from "../context/QuestionContext";
 
-const Home = ({ questions }) => {
+const Home = () => {
+  const { questions } = useQuestions();
+
   return (
     <div className="max-w-5xl mx-auto sm:px-4 md:px-6 py-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4 border-b border-gray-200 pb-6">

@@ -1,20 +1,24 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useQuestions } from "../context/QuestionContext";
+import { useAuth } from "../context/AuthContext";
 
-const AskQuestionForm = ({ onAddQuestion }) => {
+const AskQuestionForm = () => {
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
   const [tags, setTags] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
+  const { addQuestion } = useQuestions();
+  const { currentUser } = useAuth();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!title.trim() || !body.trim() || !tags.trim()) return;
 
     setIsSubmitting(true);
 
-    // Simulate API call delay
+    // Simulate Network Delay for better UX
     setTimeout(() => {
       const newQuestion = {
         id: Date.now(),
@@ -23,13 +27,13 @@ const AskQuestionForm = ({ onAddQuestion }) => {
         tags: tags.split(",").map((t) => t.trim()),
         votes: 0,
         answersCount: 0,
-        author: "current_user",
+        author: currentUser?.displayName || "Anonymous", // Use context user
         createdAt: new Date().toISOString(),
         views: 0,
         answers: [],
       };
 
-      onAddQuestion(newQuestion);
+      addQuestion(newQuestion);
       setIsSubmitting(false);
       navigate("/");
     }, 500);
@@ -43,6 +47,7 @@ const AskQuestionForm = ({ onAddQuestion }) => {
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
+          onClick={() => navigate(-1)}
         >
           <path
             strokeLinecap="round"

@@ -1,13 +1,20 @@
-import React from "react";
+import React, { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import AnswerCard from "../components/AnswerCard";
 import AnswerForm from "../components/AnswerForm";
 import VoteButtons from "../components/VoteButtons";
 import Tag from "../components/Tag";
+import { useQuestions } from "../context/QuestionContext";
+import { useAuth } from "../context/AuthContext";
 
-const QuestionDetails = ({ questions, onAddAnswer }) => {
+const QuestionDetails = () => {
   const { id } = useParams();
-  const question = questions.find((q) => q.id === parseInt(id));
+  const { questions, addAnswer, voteQuestion, voteAnswer, acceptAnswer } =
+    useQuestions();
+  const { currentUser } = useAuth();
+
+  // Find question by _id (string) or id (number, for dummy data)
+  const question = questions.find((q) => q._id === id || q.id === parseInt(id));
 
   if (!question) {
     return (
@@ -18,8 +25,27 @@ const QuestionDetails = ({ questions, onAddAnswer }) => {
   }
 
   const handleAddAnswer = (text) => {
-    onAddAnswer(question.id, text);
+    const newAnswer = {
+      text,
+      author: currentUser?.displayName || "Anonymous",
+    };
+    addAnswer(question._id || question.id, newAnswer);
   };
+
+  const handleVoteQuestion = (val) => {
+    voteQuestion(question._id || question.id, val);
+  };
+
+  const handleVoteAnswer = (answerId, val) => {
+    voteAnswer(question._id || question.id, answerId, val);
+  };
+
+  const handleAcceptAnswer = (answerId) => {
+    acceptAnswer(question._id || question.id, answerId);
+  };
+
+  const isQuestionAuthor =
+    currentUser && currentUser.displayName === question.author;
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 bg-white min-h-screen">
@@ -57,7 +83,11 @@ const QuestionDetails = ({ questions, onAddAnswer }) => {
         <div className="min-w-0">
           <div className="flex gap-4 mb-8">
             <div className="flex-shrink-0 pt-1">
-              <VoteButtons initialVotes={question.votes} size="lg" />
+              <VoteButtons
+                initialVotes={question.votes}
+                size="lg"
+                onVote={handleVoteQuestion}
+              />
             </div>
 
             <div className="flex-1 min-w-0">
@@ -131,7 +161,13 @@ const QuestionDetails = ({ questions, onAddAnswer }) => {
             <div className="space-y-0 divide-y divide-gray-200">
               {question.answers && question.answers.length > 0 ? (
                 question.answers.map((ans) => (
-                  <AnswerCard key={ans.id} answer={ans} />
+                  <AnswerCard
+                    key={ans._id || ans.id}
+                    answer={ans}
+                    onVote={(val) => handleVoteAnswer(ans._id || ans.id, val)}
+                    onAccept={() => handleAcceptAnswer(ans._id || ans.id)}
+                    isQuestionAuthor={isQuestionAuthor}
+                  />
                 ))
               ) : (
                 <div className="py-8 text-center text-gray-500 italic border-t border-b border-gray-100 bg-gray-50/30 rounded">
@@ -141,7 +177,16 @@ const QuestionDetails = ({ questions, onAddAnswer }) => {
             </div>
           </div>
 
-          <AnswerForm onAddAnswer={handleAddAnswer} />
+          {currentUser ? (
+            <AnswerForm onAddAnswer={handleAddAnswer} />
+          ) : (
+            <div className="mt-6 p-4 bg-gray-50 border border-gray-200 text-center rounded">
+              <Link to="/login" className="text-blue-600 hover:underline">
+                Log in
+              </Link>{" "}
+              to answer.
+            </div>
+          )}
         </div>
 
         {/* Sidebar */}

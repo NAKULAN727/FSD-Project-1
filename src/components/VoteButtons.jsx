@@ -1,34 +1,37 @@
 import React, { useState } from "react";
 import { ChevronUp, ChevronDown } from "lucide-react";
 
-const VoteButtons = ({ initialVotes, size = "md" }) => {
-  const [votes, setVotes] = useState(initialVotes);
+const VoteButtons = ({ initialVotes, size = "md", onVote }) => {
   const [userVote, setUserVote] = useState(0); // 0: none, 1: up, -1: down
 
   const handleUpvote = () => {
+    let diff = 0;
     if (userVote === 1) {
-      setVotes(votes - 1);
+      diff = -1;
       setUserVote(0);
     } else if (userVote === -1) {
-      setVotes(votes + 2);
+      diff = 2;
       setUserVote(1);
     } else {
-      setVotes(votes + 1);
+      diff = 1;
       setUserVote(1);
     }
+    if (onVote) onVote(diff);
   };
 
   const handleDownvote = () => {
+    let diff = 0;
     if (userVote === -1) {
-      setVotes(votes + 1);
+      diff = 1;
       setUserVote(0);
     } else if (userVote === 1) {
-      setVotes(votes - 2);
+      diff = -2;
       setUserVote(-1);
     } else {
-      setVotes(votes - 1);
+      diff = -1;
       setUserVote(-1);
     }
+    if (onVote) onVote(diff);
   };
 
   return (
@@ -44,7 +47,7 @@ const VoteButtons = ({ initialVotes, size = "md" }) => {
       <span
         className={`font-semibold text-gray-700 ${size === "lg" ? "text-xl" : "text-lg"}`}
       >
-        {votes}
+        {initialVotes}
       </span>
 
       <button

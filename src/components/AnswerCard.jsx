@@ -1,29 +1,31 @@
 import React from "react";
 import VoteButtons from "./VoteButtons";
 
-const AnswerCard = ({ answer }) => {
+const AnswerCard = ({ answer, onVote, onAccept, isQuestionAuthor }) => {
   return (
-    <div className="flex gap-4 py-6 border-b border-gray-200 last:border-0 hover:bg-gray-50/50 transition-colors">
+    <div
+      className={`flex gap-4 py-6 border-b border-gray-200 last:border-0 transition-colors ${answer.accepted ? "bg-green-50/30" : "hover:bg-gray-50/50"}`}
+    >
       <div className="flex flex-col items-center gap-2">
-        <VoteButtons initialVotes={answer.votes} size="md" />
-        {answer.accepted && (
-          <div className="mt-2" title="Accepted Answer">
-            <svg
-              aria-hidden="true"
-              className="w-8 h-8 text-green-500"
-              viewBox="0 0 40 40"
-            >
-              <path
-                d="M6 20L16 30L34 12"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="4"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              ></path>
-            </svg>
-          </div>
-        )}
+        <VoteButtons initialVotes={answer.votes} size="md" onVote={onVote} />
+
+        <div
+          className={`mt-2 p-1 rounded-full cursor-pointer transition-colors ${answer.accepted ? "text-green-500" : "text-gray-300 hover:text-green-400"}`}
+          title={answer.accepted ? "Accepted Answer" : "Mark as Accepted"}
+          onClick={isQuestionAuthor ? onAccept : undefined}
+          style={{ cursor: isQuestionAuthor ? "pointer" : "default" }}
+        >
+          <svg aria-hidden="true" className="w-8 h-8" viewBox="0 0 40 40">
+            <path
+              d="M6 20L16 30L34 12"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="4"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            ></path>
+          </svg>
+        </div>
       </div>
 
       <div className="flex-1 min-w-0">
