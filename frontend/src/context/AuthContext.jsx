@@ -37,7 +37,7 @@ export const AuthProvider = ({ children }) => {
         return { success: true };
       }
       return { success: false, message: data.error || "Login failed" };
-    } catch (error) {
+    } catch {
       return { success: false, message: "Network error" };
     }
   };
@@ -55,7 +55,7 @@ export const AuthProvider = ({ children }) => {
         return { success: true };
       }
       return { success: false, message: data.error || "Registration failed" };
-    } catch (error) {
+    } catch {
       return { success: false, message: "Network error" };
     }
   };

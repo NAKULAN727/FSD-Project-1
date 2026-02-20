@@ -13,17 +13,7 @@ import Discussions from "./pages/Discussions";
 import DiscussionDetails from "./pages/DiscussionDetails";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { QuestionProvider } from "./context/QuestionContext";
-
-// Wrapper for protected routes
-const ProtectedRoute = ({ children }) => {
-  const { currentUser } = useAuth();
-  const location = useLocation();
-
-  if (!currentUser) {
-    return <Navigate to="/login" state={{ from: location }} replace />;
-  }
-  return children;
-};
+import ProtectedRoute from "./components/ProtectedRoute";
 
 // Main App Content wrapped in providers
 const AppContent = () => {
@@ -55,13 +45,14 @@ const AppContent = () => {
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route
-            path="/questions"
+            path="/home"
             element={
               <ProtectedRoute>
                 <Home />
               </ProtectedRoute>
             }
           />
+          <Route path="/questions" element={<Navigate to="/home" replace />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route
