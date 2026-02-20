@@ -19,17 +19,17 @@ const Home = () => {
       </div>
 
       <div className="flex flex-col sm:flex-row gap-4 mb-4">
-        <div className="flex gap-1 border border-gray-300 rounded-[3px] overflow-hidden ml-auto">
-          <button className="px-3 py-1.5 bg-gray-100 text-gray-600 text-xs font-medium hover:bg-gray-200 border-r border-gray-300">
+        <div className="flex gap-1 border border-gray-300 rounded-[3px] overflow-x-auto no-scrollbar sm:ml-auto bg-white">
+          <button className="px-3 py-1.5 bg-gray-100 text-gray-600 text-xs font-medium hover:bg-gray-200 border-r border-gray-300 whitespace-nowrap">
             Interesting
           </button>
-          <button className="px-3 py-1.5 bg-white text-gray-500 text-xs hover:bg-gray-100 border-r border-gray-300">
+          <button className="px-3 py-1.5 bg-white text-gray-500 text-xs hover:bg-gray-100 border-r border-gray-300 whitespace-nowrap">
             Hot
           </button>
-          <button className="px-3 py-1.5 bg-white text-gray-500 text-xs hover:bg-gray-100 border-r border-gray-300">
+          <button className="px-3 py-1.5 bg-white text-gray-500 text-xs hover:bg-gray-100 border-r border-gray-300 whitespace-nowrap">
             Week
           </button>
-          <button className="px-3 py-1.5 bg-white text-gray-500 text-xs hover:bg-gray-100">
+          <button className="px-3 py-1.5 bg-white text-gray-500 text-xs hover:bg-gray-100 whitespace-nowrap">
             Month
           </button>
         </div>

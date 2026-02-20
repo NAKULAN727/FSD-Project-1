@@ -4,20 +4,28 @@ import Tag from "./Tag";
 
 const QuestionCard = ({ question }) => {
   return (
-    <div className="grid grid-cols-[80px_1fr] sm:grid-cols-[100px_1fr] gap-4 p-4 border-b border-gray-200 last:border-0 hover:bg-gray-50 transition-colors">
+    <div className="flex flex-col sm:grid sm:grid-cols-[100px_1fr] gap-4 p-4 border-b border-gray-200 last:border-0 hover:bg-gray-50 transition-colors">
       {/* Stats */}
-      <div className="flex flex-col items-end gap-2 text-xs sm:text-sm text-gray-600">
+      <div className="flex flex-row sm:flex-col items-center sm:items-end gap-3 sm:gap-2 text-[11px] sm:text-sm text-gray-600">
         <div className="text-gray-800 font-medium whitespace-nowrap">
-          {question.votes} votes
+          {question.votes} <span className="sm:inline hidden">votes</span>
+          <span className="sm:hidden inline">↑</span>
         </div>
         <div
-          className={`px-2 py-1 rounded w-full text-center ${question.answersCount > 0 ? (question.answers && question.answers.some((a) => a.accepted) ? "bg-green-600 text-white" : "border border-green-600 text-green-600 font-medium") : "text-gray-500"}`}
+          className={`px-2 py-0.5 sm:py-1 rounded sm:w-full text-center flex gap-1 sm:block items-center ${
+            question.answersCount > 0
+              ? question.answers && question.answers.some((a) => a.accepted)
+                ? "bg-green-600 text-white"
+                : "border border-green-600 text-green-600 font-medium"
+              : "text-gray-500"
+          }`}
         >
           <div className="leading-tight">{question.answersCount}</div>
-          <div className="text-[10px]">answers</div>
+          <div className="text-[10px] sm:text-[10px]">answers</div>
         </div>
-        <div className="text-gray-400 text-xs text-right w-full">
-          {question.views} views
+        <div className="text-gray-400 text-[11px] sm:text-xs text-right ml-auto sm:ml-0 sm:w-full">
+          {question.views} <span className="sm:inline hidden">views</span>
+          <span className="sm:hidden inline">👁️</span>
         </div>
       </div>
 

@@ -68,39 +68,41 @@ const Profile = () => {
         </div>
 
         {/* Profile Info Bar */}
-        <div className="px-8 pb-6 relative">
-          <div className="flex flex-col md:flex-row items-start md:items-end -mt-12 mb-6">
+        <div className="px-4 sm:px-8 pb-6 relative">
+          <div className="flex flex-col md:flex-row items-center md:items-end -mt-16 md:-mt-12 mb-6 text-center md:text-left">
             {/* Avatar */}
             <div className="relative">
-              <div className="w-32 h-32 rounded-full border-4 border-white bg-white shadow-md overflow-hidden flex items-center justify-center text-4xl font-bold text-gray-400 bg-gray-100">
+              <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full border-4 border-white bg-white shadow-md overflow-hidden flex items-center justify-center text-3xl sm:text-4xl font-bold text-gray-400 bg-gray-100">
                 {/* Placeholder Avatar if no image */}
-                <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-5xl">
+                <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white">
                   {currentUser.displayName.charAt(0).toUpperCase()}
                 </div>
               </div>
             </div>
 
             {/* Name & Title */}
-            <div className="md:ml-6 mt-4 md:mt-0 flex-1">
-              <h1 className="text-3xl font-bold text-gray-900">
+            <div className="md:ml-6 mt-4 md:mt-0 flex-1 w-full">
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 break-words">
                 {currentUser.displayName}
               </h1>
-              <p className="text-gray-500 font-medium">Full Stack Developer</p>
+              <p className="text-gray-500 font-medium text-sm sm:text-base">
+                Full Stack Developer
+              </p>
             </div>
 
             {/* Action Buttons */}
-            <div className="mt-4 md:mt-0 flex gap-3">
-              <button className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 font-medium hover:bg-gray-50 transition-colors">
+            <div className="mt-6 md:mt-0 flex gap-2 w-full md:w-auto">
+              <button className="flex-1 md:flex-none px-4 py-2 border border-gray-300 rounded-md text-gray-700 text-sm font-medium hover:bg-gray-50 transition-colors">
                 Edit Profile
               </button>
             </div>
           </div>
 
           {/* Navigation Tabs */}
-          <div className="flex border-b border-gray-200">
+          <div className="flex border-b border-gray-200 overflow-x-auto no-scrollbar bg-white sticky top-0 md:static z-10 -mx-4 px-4 sm:mx-0 sm:px-0">
             <button
               onClick={() => setActiveTab("about")}
-              className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+              className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
                 activeTab === "about"
                   ? "border-blue-500 text-blue-600"
                   : "border-transparent text-gray-500 hover:text-gray-700"
@@ -110,7 +112,7 @@ const Profile = () => {
             </button>
             <button
               onClick={() => setActiveTab("questions")}
-              className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+              className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
                 activeTab === "questions"
                   ? "border-blue-500 text-blue-600"
                   : "border-transparent text-gray-500 hover:text-gray-700"
@@ -123,7 +125,7 @@ const Profile = () => {
             </button>
             <button
               onClick={() => setActiveTab("settings")}
-              className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+              className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
                 activeTab === "settings"
                   ? "border-blue-500 text-blue-600"
                   : "border-transparent text-gray-500 hover:text-gray-700"
