@@ -7,10 +7,11 @@ export const useQuestions = () => useContext(QuestionContext);
 export const QuestionProvider = ({ children }) => {
   const [questions, setQuestions] = useState([]);
   const [discussions, setDiscussions] = useState([]);
+  const API = import.meta.env.VITE_API_URL;
 
   const fetchQuestions = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/questions");
+      const res = await fetch(`${API}/api/questions`);
       const data = await res.json();
       setQuestions(data);
     } catch (err) {
@@ -20,7 +21,7 @@ export const QuestionProvider = ({ children }) => {
 
   const fetchDiscussions = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/discussions");
+      const res = await fetch(`${API}/api/discussions`);
       const data = await res.json();
       setDiscussions(data);
     } catch (err) {
@@ -30,7 +31,7 @@ export const QuestionProvider = ({ children }) => {
 
   const addQuestion = async (questionData) => {
     try {
-      const res = await fetch("http://localhost:5000/api/questions", {
+      const res = await fetch(`${API}/api/questions`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(questionData),
@@ -44,14 +45,11 @@ export const QuestionProvider = ({ children }) => {
 
   const addAnswer = async (questionId, answerData) => {
     try {
-      const res = await fetch(
-        `http://localhost:5000/api/questions/${questionId}/answers`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(answerData), // answerData should map to backend fields
-        },
-      );
+      const res = await fetch(`${API}/api/questions/${questionId}/answers`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(answerData), // answerData should map to backend fields
+      });
       const updatedQuestion = await res.json();
       setQuestions((prev) =>
         prev.map((q) => (q._id === updatedQuestion._id ? updatedQuestion : q)),
@@ -64,7 +62,7 @@ export const QuestionProvider = ({ children }) => {
   const acceptAnswer = async (questionId, answerId) => {
     try {
       const res = await fetch(
-        `http://localhost:5000/api/questions/${questionId}/answers/${answerId}/accept`,
+        `${API}/api/questions/${questionId}/answers/${answerId}/accept`,
         {
           method: "PATCH",
         },
@@ -80,14 +78,11 @@ export const QuestionProvider = ({ children }) => {
 
   const voteQuestion = async (questionId, value) => {
     try {
-      const res = await fetch(
-        `http://localhost:5000/api/questions/${questionId}/vote`,
-        {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ value }),
-        },
-      );
+      const res = await fetch(`${API}/api/questions/${questionId}/vote`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ value }),
+      });
       const updatedQuestion = await res.json();
       setQuestions((prev) =>
         prev.map((q) => (q._id === updatedQuestion._id ? updatedQuestion : q)),
@@ -100,7 +95,7 @@ export const QuestionProvider = ({ children }) => {
   const voteAnswer = async (questionId, answerId, value) => {
     try {
       const res = await fetch(
-        `http://localhost:5000/api/questions/${questionId}/answers/${answerId}/vote`,
+        `${API}/api/questions/${questionId}/answers/${answerId}/vote`,
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
@@ -118,7 +113,7 @@ export const QuestionProvider = ({ children }) => {
 
   const addDiscussion = async (discussionData) => {
     try {
-      const res = await fetch("http://localhost:5000/api/discussions", {
+      const res = await fetch(`${API}/api/discussions`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(discussionData),
@@ -133,7 +128,7 @@ export const QuestionProvider = ({ children }) => {
   const addCommentToDiscussion = async (discussionId, commentData) => {
     try {
       const res = await fetch(
-        `http://localhost:5000/api/discussions/${discussionId}/comments`,
+        `${API}/api/discussions/${discussionId}/comments`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
