@@ -12,7 +12,7 @@ const Register = () => {
   const navigate = useNavigate();
   const { register } = useAuth();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setIsLoading(true);
@@ -30,16 +30,14 @@ const Register = () => {
       return;
     }
 
-    // Simulate API delay
-    setTimeout(() => {
-      const result = register(email, password, displayName);
-      if (result.success) {
-        navigate("/questions");
-      } else {
-        setError(result.message);
-        setIsLoading(false);
-      }
-    }, 500);
+    const result = await register(email, password, displayName);
+    if (result.success) {
+      alert("Registration successful! Please login.");
+      navigate("/login");
+    } else {
+      setError(result.message);
+      setIsLoading(false);
+    }
   };
 
   return (

@@ -5,21 +5,19 @@ const AuthContext = createContext();
 export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }) => {
-  const [currentUser, setCurrentUser] = useState(() => {
-    const stored = localStorage.getItem("so_clone_current_user");
-    return stored ? JSON.parse(stored) : null;
-  });
+  const [currentUser, setCurrentUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (currentUser) {
-      localStorage.setItem(
-        "so_clone_current_user",
-        JSON.stringify(currentUser),
-      );
-    } else {
-      localStorage.removeItem("so_clone_current_user");
+    // Check for token and user on load
+    const token = localStorage.getItem("token");
+    const storedUser = localStorage.getItem("user");
+
+    if (token && storedUser) {
+      setCurrentUser(JSON.parse(storedUser));
     }
-  }, [currentUser]);
+    setIsLoading(false);
+  }, []);
 
   const login = async (email, password) => {
     const API = import.meta.env.VITE_API_URL;
@@ -31,7 +29,11 @@ export const AuthProvider = ({ children }) => {
       });
       const data = await response.json();
       if (response.ok) {
-        setCurrentUser(data);
+        // Save to state
+        setCurrentUser(data.user);
+        // Save to localStorage
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("user", JSON.stringify(data.user));
         return { success: true };
       }
       return { success: false, message: data.error || "Login failed" };
@@ -60,10 +62,13 @@ export const AuthProvider = ({ children }) => {
 
   const logout = () => {
     setCurrentUser(null);
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
   };
 
   const value = {
     currentUser,
+    isLoading,
     login,
     register,
     logout,

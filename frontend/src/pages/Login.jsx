@@ -11,21 +11,18 @@ const Login = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setIsLoading(true);
 
-    // Simulate API delay
-    setTimeout(() => {
-      const result = login(email, password);
-      if (result.success) {
-        navigate("/questions");
-      } else {
-        setError(result.message);
-        setIsLoading(false);
-      }
-    }, 500);
+    const result = await login(email, password);
+    if (result.success) {
+      navigate("/");
+    } else {
+      setError(result.message);
+      setIsLoading(false);
+    }
   };
 
   return (

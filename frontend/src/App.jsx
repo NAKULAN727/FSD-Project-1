@@ -28,7 +28,15 @@ const ProtectedRoute = ({ children }) => {
 // Main App Content wrapped in providers
 const AppContent = () => {
   const location = useLocation();
-  const { currentUser, logout } = useAuth();
+  const { currentUser, isLoading } = useAuth();
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-teal-500"></div>
+      </div>
+    );
+  }
 
   // Hide Navbar on Login, Register, and Landing pages
   const shouldShowNavbar = !["/login", "/register", "/"].includes(
