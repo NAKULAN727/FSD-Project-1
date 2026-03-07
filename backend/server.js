@@ -16,8 +16,10 @@ app.use(
     origin: [
       process.env.CLIENT_URL,
       "http://localhost:5173",
-      "https://fsd-project-rust.vercel.app"
+      "https://fsd-project-rust.vercel.app",
+      "https://fsd-project-juzthwf4r-nakulans-projects.vercel.app"
     ],
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     credentials: true,
   }),
 );
