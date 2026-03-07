@@ -27,6 +27,10 @@ const Profile = () => {
   const [error, setError] = useState("");
   const [activeTab, setActiveTab] = useState("about");
 
+  const [isEditing, setIsEditing] = useState(false);
+  const [editFormData, setEditFormData] = useState({});
+  const [isSaving, setIsSaving] = useState(false);
+
   useEffect(() => {
     const fetchUserProfile = async () => {
       setIsLoading(true);
@@ -52,6 +56,39 @@ const Profile = () => {
 
     fetchUserProfile();
   }, [userId, currentUser]);
+
+  const handleEditChange = (e) => {
+    setEditFormData({ ...editFormData, [e.target.name]: e.target.value });
+  };
+
+  const handleUpdateProfile = async (e) => {
+    e.preventDefault();
+    setIsSaving(true);
+    try {
+      const response = await axios.put(`/api/users/profile/${profileUser._id}`, editFormData);
+      setProfileUser(response.data);
+      setIsEditing(false);
+    } catch (err) {
+      console.error("Failed to update profile:", err);
+      alert("Failed to update profile");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const openEditModal = () => {
+    setEditFormData({
+      name: profileUser.name || "",
+      age: profileUser.age || "",
+      dob: profileUser.dob ? new Date(profileUser.dob).toISOString().split('T')[0] : "",
+      address: profileUser.address || "",
+      college: profileUser.college || "",
+      bio: profileUser.bio || "",
+      role: profileUser.role || "",
+      profilePicture: profileUser.profilePicture || ""
+    });
+    setIsEditing(true);
+  };
 
   if (isLoading) {
     return (
@@ -114,7 +151,7 @@ const Profile = () => {
                   <img src={profileUser.profilePicture} alt={profileUser.name} className="w-full h-full object-cover" />
                 ) : (
                   <div className="w-full h-full bg-gradient-to-br from-indigo-500 to-teal-400 flex items-center justify-center text-white">
-                    {profileUser.name.charAt(0).toUpperCase()}
+                    {profileUser?.name ? profileUser.name.charAt(0).toUpperCase() : "U"}
                   </div>
                 )}
               </div>
@@ -138,7 +175,10 @@ const Profile = () => {
             {/* Action Buttons */}
             {isOwnProfile && (
               <div className="mt-6 md:mt-0 flex gap-3 w-full md:w-auto">
-                <button className="flex-1 md:flex-none px-5 py-2.5 bg-gradient-to-r from-teal-500 to-emerald-500 text-white rounded-lg text-sm font-bold shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5">
+                <button
+                  onClick={openEditModal}
+                  className="flex-1 md:flex-none px-5 py-2.5 bg-gradient-to-r from-teal-500 to-emerald-500 text-white rounded-lg text-sm font-bold shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5"
+                >
                   Edit Profile
                 </button>
               </div>
@@ -342,6 +382,68 @@ const Profile = () => {
           )}
         </div>
       </div>
+
+      {/* Edit Profile Modal */}
+      {isEditing && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex justify-center items-center p-4">
+          <div className="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto animate-fade-in shadow-2xl transition-all">
+            <div className="p-6 border-b border-gray-100 flex justify-between items-center sticky top-0 bg-white z-10">
+              <h2 className="text-2xl font-bold text-gray-900">Edit Profile</h2>
+              <button onClick={() => setIsEditing(false)} className="text-gray-500 hover:text-gray-700">
+                <span className="text-3xl leading-none">&times;</span>
+              </button>
+            </div>
+            <form onSubmit={handleUpdateProfile} className="p-6 space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1 ml-1">Name</label>
+                  <input type="text" name="name" value={editFormData.name || ""} onChange={handleEditChange} className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-teal-400 focus:bg-white transition-colors" required />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1 ml-1">Role</label>
+                  <select name="role" value={editFormData.role || ""} onChange={handleEditChange} className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-teal-400 focus:bg-white transition-colors">
+                    <option value="Student">Student</option>
+                    <option value="Working Professional">Working Professional</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1 ml-1">Age</label>
+                  <input type="number" name="age" value={editFormData.age || ""} onChange={handleEditChange} className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-teal-400 focus:bg-white transition-colors" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1 ml-1">Date of Birth</label>
+                  <input type="date" name="dob" value={editFormData.dob || ""} onChange={handleEditChange} className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-teal-400 focus:bg-white transition-colors" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1 ml-1">College/Company</label>
+                  <input type="text" name="college" value={editFormData.college || ""} onChange={handleEditChange} className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-teal-400 focus:bg-white transition-colors" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1 ml-1">Address</label>
+                  <input type="text" name="address" value={editFormData.address || ""} onChange={handleEditChange} className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-teal-400 focus:bg-white transition-colors" />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1 ml-1">Profile Picture URL</label>
+                <input type="text" name="profilePicture" value={editFormData.profilePicture || ""} onChange={handleEditChange} className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-teal-400 focus:bg-white transition-colors" placeholder="https://example.com/image.jpg" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1 ml-1">Bio</label>
+                <textarea name="bio" value={editFormData.bio || ""} onChange={handleEditChange} rows="4" className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-teal-400 focus:bg-white transition-colors resize-none"></textarea>
+              </div>
+              <div className="pt-6 flex justify-end gap-3 mt-4">
+                <button type="button" onClick={() => setIsEditing(false)} className="px-6 py-2.5 text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-full font-bold transition-colors">
+                  Cancel
+                </button>
+                <button type="submit" disabled={isSaving} className="px-6 py-2.5 text-white bg-[#2DD4BF] hover:bg-[#14b8a6] shadow-lg rounded-full font-bold min-w-[140px] transition-all transform hover:scale-[1.02] disabled:opacity-70">
+                  {isSaving ? "Saving..." : "Save Changes"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

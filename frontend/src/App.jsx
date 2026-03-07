@@ -11,6 +11,11 @@ import LandingPage from "./pages/LandingPage";
 import Profile from "./pages/Profile";
 import Discussions from "./pages/Discussions";
 import DiscussionDetails from "./pages/DiscussionDetails";
+import Groups from "./pages/Groups";
+import CreateGroup from "./pages/CreateGroup";
+import GroupDetails from "./pages/GroupDetails";
+import PrivateQuestions from "./pages/PrivateQuestions";
+import AskPrivateQuestion from "./pages/AskPrivateQuestion";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { QuestionProvider } from "./context/QuestionContext";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -112,6 +117,46 @@ const AppContent = () => {
             element={
               <ProtectedRoute>
                 <DiscussionDetails />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/groups"
+            element={
+              <ProtectedRoute>
+                <Groups />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/create-group"
+            element={
+              <ProtectedRoute>
+                <CreateGroup />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/groups/:groupId"
+            element={
+              <ProtectedRoute>
+                <GroupDetails />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/private-questions"
+            element={
+              <ProtectedRoute>
+                <PrivateQuestions />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/ask-private-question"
+            element={
+              <ProtectedRoute>
+                <AskPrivateQuestion />
               </ProtectedRoute>
             }
           />

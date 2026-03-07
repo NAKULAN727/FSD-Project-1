@@ -37,10 +37,10 @@ const Navbar = () => {
             <div className="w-auto overflow-hidden">
               <svg
                 aria-hidden="true"
-                className="native w-[100px] sm:w-[150px] h-[24px] sm:h-[30px]"
-                width="150"
+                className="native w-[130px] sm:w-[180px] h-[24px] sm:h-[30px]"
+                width="180"
                 height="30"
-                viewBox="0 0 150 30"
+                viewBox="0 0 180 30"
               >
                 <path d="M26 33v-9h4v13H0V24h4v9h22Z" fill="#BCBBBB"></path>
                 <path
@@ -72,6 +72,18 @@ const Navbar = () => {
               className="hover:text-gray-900 transition-colors"
             >
               Discussions
+            </Link>
+            <Link
+              to="/groups"
+              className="hover:text-gray-900 transition-colors"
+            >
+              Groups
+            </Link>
+            <Link
+              to="/private-questions"
+              className="hover:text-gray-900 transition-colors hidden lg:block whitespace-nowrap"
+            >
+              Private Q's
             </Link>
           </div>
         </div>
@@ -106,7 +118,7 @@ const Navbar = () => {
                 title="Profile"
               >
                 <div className="w-6 h-6 sm:w-7 sm:h-7 bg-purple-500 rounded text-white flex items-center justify-center text-[10px] sm:text-xs font-bold shadow-sm flex-shrink-0">
-                  {currentUser.name.charAt(0).toUpperCase()}
+                  {currentUser?.name ? currentUser.name.charAt(0).toUpperCase() : "U"}
                 </div>
                 <span className="text-xs font-bold text-gray-600 hidden lg:block">
                   {currentUser.reputation || 1}
@@ -178,6 +190,20 @@ const Navbar = () => {
               onClick={() => setIsMenuOpen(false)}
             >
               Discussions
+            </Link>
+            <Link
+              to="/groups"
+              className="block text-gray-600 font-medium"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Groups
+            </Link>
+            <Link
+              to="/private-questions"
+              className="block text-gray-600 font-medium"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Private Questions
             </Link>
             <Link
               to="/tags"

@@ -19,6 +19,7 @@ router.post("/", async (req, res) => {
     title: req.body.title,
     body: req.body.body,
     author: req.body.author,
+    groupId: req.body.groupId || null,
   });
 
   try {

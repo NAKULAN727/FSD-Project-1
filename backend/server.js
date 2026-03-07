@@ -13,13 +13,14 @@ const app = express();
 // Middleware
 app.use(
   cors({
-    origin: process.env.CLIENT_URL,
+    origin: [process.env.CLIENT_URL, "http://localhost:5173"],
     credentials: true,
   }),
 );
 app.use(express.json());
 
 // Connect to MongoDB
+require("dns").setServers(["8.8.8.8", "8.8.4.4"]);
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => console.log("MongoDB Connected"))
@@ -35,6 +36,8 @@ app.use("/api/questions", questionRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/discussions", discussionRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/groups", require("./routes/groups"));
+app.use("/api/private-questions", require("./routes/privateQuestions"));
 
 // Server Startup
 const PORT = process.env.PORT || 5000;

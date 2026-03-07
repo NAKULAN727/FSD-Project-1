@@ -37,7 +37,7 @@ const Home = () => {
 
       <div className="bg-white border-t border-gray-200 -mx-4 sm:mx-0 sm:border sm:rounded-md shadow-sm">
         {questions.length > 0 ? (
-          questions.map((q) => <QuestionCard key={q.id} question={q} />)
+          questions.map((q, index) => <QuestionCard key={q._id || q.id || index} question={q} />)
         ) : (
           <div className="p-8 text-center text-gray-500">
             No questions found. Be the first to ask!

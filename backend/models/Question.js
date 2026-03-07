@@ -30,6 +30,10 @@ const questionSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    groupId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Group",
+    },
     answers: [
       {
         text: String,
