@@ -1,7 +1,7 @@
 const express = require("express");
+// const mongoose = require("mongoose");
 const cors = require("cors");
 require("dotenv").config();
-
 const questionRoutes = require("./routes/questions");
 const authRoutes = require("./routes/auth");
 const discussionRoutes = require("./routes/discussions");
@@ -37,6 +37,14 @@ app.use(
 );
 app.use(express.json());
 
+// Middleware
+// const mongoose = require("mongoose");
+// require("dns").setServers(["8.8.8.8", "8.8.4.4"]);
+// mongoose
+//   .connect(process.env.MONGO_URI)
+//   .then(() => console.log("MongoDB Connected"))
+//   .catch((err) => console.log(err));
+
 // Test DB connection
 const db = require("./db");
 db.query("SELECT NOW()", (err, res) => {
@@ -61,6 +69,7 @@ app.use("/api/users", userRoutes);
 app.use("/api/private-questions", require("./routes/privateQuestions"));
 app.use("/api/answers", require("./routes/answers"));
 app.use("/api/comments", require("./routes/comments"));
+// app.use("/api/groups", require("./routes/groups")); // MongoDB groups code disabled
 
 // Server Startup
 const PORT = process.env.PORT || 5000;
