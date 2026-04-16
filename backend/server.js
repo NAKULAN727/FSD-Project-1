@@ -37,13 +37,72 @@ app.use(express.json());
 //   .then(() => console.log("MongoDB Connected"))
 //   .catch((err) => console.log(err));
 
-// Test DB connection
+// Test DB connection and create tables
 const db = require("./db");
-db.query("SELECT NOW()", (err, res) => {
+db.query("SELECT NOW()", async (err, res) => {
   if (err) {
     console.error("Error connecting to PostgreSQL:", err);
   } else {
     console.log("PostgreSQL Connected at:", res.rows[0].now);
+    // Auto-create tables if they don't exist
+    const sql = `
+      CREATE TABLE IF NOT EXISTS users (
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        email VARCHAR(255) NOT NULL UNIQUE,
+        password VARCHAR(255) NOT NULL,
+        age VARCHAR(50),
+        dob VARCHAR(50),
+        address TEXT,
+        college VARCHAR(255),
+        role VARCHAR(100),
+        bio TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+      CREATE TABLE IF NOT EXISTS questions (
+        id SERIAL PRIMARY KEY,
+        title VARCHAR(255) NOT NULL,
+        body TEXT NOT NULL,
+        topic VARCHAR(255),
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+      CREATE TABLE IF NOT EXISTS answers (
+        id SERIAL PRIMARY KEY,
+        body TEXT NOT NULL,
+        question_id INTEGER REFERENCES questions(id) ON DELETE CASCADE,
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+      CREATE TABLE IF NOT EXISTS discussions (
+        id SERIAL PRIMARY KEY,
+        title VARCHAR(255) NOT NULL,
+        body TEXT NOT NULL,
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+      CREATE TABLE IF NOT EXISTS comments (
+        id SERIAL PRIMARY KEY,
+        body TEXT NOT NULL,
+        discussion_id INTEGER REFERENCES discussions(id) ON DELETE CASCADE,
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+      CREATE TABLE IF NOT EXISTS private_questions (
+        id SERIAL PRIMARY KEY,
+        title VARCHAR(255) NOT NULL,
+        body TEXT NOT NULL,
+        asked_by INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        visible_to INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `;
+    try {
+      await db.query(sql);
+      console.log("PostgreSQL Tables created/verified successfully.");
+    } catch (tableErr) {
+      console.error("Error creating tables:", tableErr);
+    }
   }
 });
 
