@@ -19,7 +19,7 @@ router.get("/search", async (req, res) => {
             );
         } else {
             result = await db.query(
-                "SELECT id, name FROM users WHERE name ILIKE $1 LIMIT 10",
+                "SELECT id, name, email FROM users WHERE name ILIKE $1 OR email ILIKE $1 LIMIT 10",
                 [`%${query}%`]
             );
         }
@@ -37,7 +37,27 @@ router.get("/profile/:id", async (req, res) => {
         if (result.rows.length === 0) {
             return res.status(404).json({ message: "User not found" });
         }
-        res.json(result.rows[0]);
+        
+        let user = result.rows[0];
+
+        // Ensure default values for new users
+        if (!user.role) user.role = "User";
+        
+        // Fetch counts dynamically
+        const qCount = await db.query("SELECT COUNT(*) as count FROM questions WHERE user_id = $1", [req.params.id]);
+        user.questionsAsked = parseInt(qCount.rows[0].count || 0, 10);
+
+        // Answers exist inside answers table
+        const aCount = await db.query("SELECT COUNT(*) as count FROM answers WHERE user_id = $1", [req.params.id]);
+        user.answersGiven = parseInt(aCount.rows[0].count || 0, 10);
+
+        // Discussions
+        const dCount = await db.query("SELECT COUNT(*) as count FROM discussions WHERE user_id = $1", [req.params.id]);
+        user.discussionsCreated = parseInt(dCount.rows[0].count || 0, 10);
+
+        user.votesReceived = 0; // Defaulting to 0 since votes logic might be decoupled
+
+        res.json(user);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

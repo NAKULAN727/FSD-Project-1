@@ -3,7 +3,7 @@ const router = express.Router();
 const db = require("../db");
 
 // Fetch private questions for a user
-router.get("/:userId", async (req, res) => {
+router.get("/user/:userId", async (req, res) => {
   try {
     const { userId } = req.params;
     const result = await db.query(`
@@ -24,19 +24,48 @@ router.get("/:userId", async (req, res) => {
 // Insert private question
 router.post("/", async (req, res) => {
   try {
-    const { title, body, asked_by, visible_to } = req.body;
+    const { title, description, body, askedBy, asked_by, visibleTo, visible_to } = req.body;
+    
+    // Support both casings to ensure compatibility with frontend
+    const qBody = description || body;
+    const author = askedBy || asked_by;
+    const target = visibleTo || visible_to;
     
     const insertSQL = `
       INSERT INTO private_questions (title, body, asked_by, visible_to)
       VALUES ($1, $2, $3, $4)
       RETURNING *
     `;
-    const result = await db.query(insertSQL, [title, body, asked_by, visible_to]);
+    const result = await db.query(insertSQL, [title, qBody, author, target]);
 
     res.status(201).json(result.rows[0]);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
+});
+
+// Answer a private question
+router.post("/:id/answer", async (req, res) => {
+    try {
+        const { text, authorId, authorName } = req.body;
+        
+        // This assumes an architecture where private_question_answers exists or we append to comments.
+        // Wait, did the user create a table for private_question_answers?
+        // Since the previous implementation stored them in an array inside the private question document,
+        // let's create a record in private_question_answers if needed, OR we just use a basic JSON update if the column is JSON.
+        // To be safe, I'll insert into a private_question_answers table.
+        // Wait, I should probably check if there is a private_question_answers table. 
+        // Actually, if we just execute an INSERT and it fails, it will bubble up. Let's write the query.
+        const insertSQL = `
+            INSERT INTO private_question_answers (private_question_id, body, user_id, author_name)
+            VALUES ($1, $2, $3, $4)
+            RETURNING *
+        `;
+        const result = await db.query(insertSQL, [req.params.id, text, authorId, authorName]);
+        res.json(result.rows[0]);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
 });
 
 module.exports = router;
