@@ -11,17 +11,30 @@ const userRoutes = require("./routes/users");
 const app = express();
 
 // Middleware
+const allowedOrigins = [
+  "https://fsd-project-rust.vercel.app",
+  "https://fsd-project-juzthwf4r-nakulans-projects.vercel.app",
+  "http://localhost:5173",
+];
+if (process.env.CLIENT_URL) {
+  if (!allowedOrigins.includes(process.env.CLIENT_URL)) {
+    allowedOrigins.push(process.env.CLIENT_URL);
+  }
+}
+
 app.use(
   cors({
-    origin: [
-      process.env.CLIENT_URL,
-      "http://localhost:5173",
-      "https://fsd-project-rust.vercel.app",
-      "https://fsd-project-juzthwf4r-nakulans-projects.vercel.app"
-    ],
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        // Allows previews or alternative origins by reflecting the origin dynamcially
+        callback(null, origin);
+      }
+    },
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     credentials: true,
-  }),
+  })
 );
 app.use(express.json());
 

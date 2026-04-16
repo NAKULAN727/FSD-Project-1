@@ -10,7 +10,7 @@ export const AuthProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   // Configure axios defaults
-  const API = import.meta.env.VITE_API_URL;
+  const API = import.meta.env.VITE_API_URL || "https://fsd-project-1-w2rp.onrender.com";
   axios.defaults.baseURL = API;
 
   useEffect(() => {
