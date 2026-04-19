@@ -24,7 +24,7 @@ const AskPrivateQuestion = () => {
                 try {
                     const res = await axios.get(`/api/users/search?query=${searchQuery}`);
                     // Don't show current user in results
-                    setSearchResults(res.data.filter(u => u._id !== currentUser._id));
+                    setSearchResults(res.data.filter(u => (u._id || u.id) !== (currentUser._id || currentUser.id)));
                 } catch (err) {
                     console.error("Search failed");
                 }
@@ -55,8 +55,8 @@ const AskPrivateQuestion = () => {
         try {
             await axios.post("/api/private-questions", {
                 ...formData,
-                askedBy: currentUser._id,
-                visibleTo: selectedUser._id
+                askedBy: currentUser._id || currentUser.id,
+                visibleTo: selectedUser._id || selectedUser.id
             });
             navigate("/private-questions");
         } catch (err) {
@@ -92,7 +92,7 @@ const AskPrivateQuestion = () => {
                             <div className="absolute z-10 w-full bg-white mt-1 border border-gray-200 shadow-xl rounded max-h-48 overflow-y-auto">
                                 {searchResults.map(user => (
                                     <div
-                                        key={user._id}
+                                        key={user._id || user.id}
                                         onClick={() => handleSelectUser(user)}
                                         className="px-4 py-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 flex items-center gap-3"
                                     >
@@ -101,7 +101,7 @@ const AskPrivateQuestion = () => {
                                         </div>
                                         <div>
                                             <p className="text-sm font-bold text-gray-800">{user.name}</p>
-                                            <p className="text-xs text-gray-500 font-mono">ID: {user._id}</p>
+                                            <p className="text-xs text-gray-500 font-mono">ID: {user._id || user.id}</p>
                                         </div>
                                     </div>
                                 ))}
@@ -114,7 +114,7 @@ const AskPrivateQuestion = () => {
                         <div className="mt-4 p-3 bg-teal-50 border border-teal-200 rounded flex items-center justify-between">
                             <div>
                                 <span className="text-xs text-teal-600 font-bold uppercase tracking-wider block mb-1">Selected Recipient</span>
-                                <span className="font-bold text-gray-800">{selectedUser.name}</span> <span className="text-gray-500 text-sm">(ID: {selectedUser._id})</span>
+                                <span className="font-bold text-gray-800">{selectedUser.name}</span> <span className="text-gray-500 text-sm">(ID: {selectedUser._id || selectedUser.id})</span>
                             </div>
                             <button
                                 onClick={() => setSelectedUser(null)}

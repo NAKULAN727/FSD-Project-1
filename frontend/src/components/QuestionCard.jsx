@@ -8,23 +8,23 @@ const QuestionCard = ({ question }) => {
       {/* Stats */}
       <div className="flex flex-row sm:flex-col items-center sm:items-end gap-3 sm:gap-2 text-[11px] sm:text-sm text-gray-600">
         <div className="text-gray-800 font-medium whitespace-nowrap">
-          {question.votes} <span className="sm:inline hidden">votes</span>
+          {question.votes || 0} <span className="sm:inline hidden">votes</span>
           <span className="sm:hidden inline">↑</span>
         </div>
         <div
           className={`px-2 py-0.5 sm:py-1 rounded sm:w-full text-center flex gap-1 sm:block items-center ${
-            question.answersCount > 0
+            (question.answersCount || 0) > 0
               ? question.answers && question.answers.some((a) => a.accepted)
                 ? "bg-green-600 text-white"
                 : "border border-green-600 text-green-600 font-medium"
               : "text-gray-500"
           }`}
         >
-          <div className="leading-tight">{question.answersCount}</div>
+          <div className="leading-tight">{question.answersCount || 0}</div>
           <div className="text-[10px] sm:text-[10px]">answers</div>
         </div>
         <div className="text-gray-400 text-[11px] sm:text-xs text-right ml-auto sm:ml-0 sm:w-full">
-          {question.views} <span className="sm:inline hidden">views</span>
+          {question.views || 0} <span className="sm:inline hidden">views</span>
           <span className="sm:hidden inline">👁️</span>
         </div>
       </div>
@@ -39,12 +39,12 @@ const QuestionCard = ({ question }) => {
         </Link>
 
         <p className="text-sm text-gray-600 line-clamp-2 break-words">
-          {question.description}
+          {question.description || question.body}
         </p>
 
         <div className="flex justify-between items-center mt-2 flex-wrap gap-y-2">
           <div className="flex gap-2 flex-wrap">
-            {question.tags.map((tag) => (
+            {(question.tags || (question.topic ? [question.topic] : ["General"])).map((tag) => (
               <Tag key={tag} name={tag} />
             ))}
           </div>
@@ -53,11 +53,11 @@ const QuestionCard = ({ question }) => {
             <div className="flex items-center gap-1">
               <div className="w-4 h-4 rounded-sm bg-blue-200"></div>
               <span className="text-blue-500 hover:text-blue-600 cursor-pointer">
-                {question.author}
+                {question.author || "Anonymous"}
               </span>
             </div>
             <span className="text-gray-500">
-              asked {new Date(question.createdAt).toLocaleDateString()}
+              asked {new Date(question.createdAt || question.created_at).toLocaleDateString()}
             </span>
           </div>
         </div>

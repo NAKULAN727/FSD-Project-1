@@ -63,17 +63,17 @@ const QuestionDetails = () => {
           </Link>
         </div>
         <div className="flex flex-wrap gap-4 text-xs text-gray-500 pb-2 border-b border-gray-100">
-          <span className="flex gap-1" title={question.createdAt}>
+          <span className="flex gap-1" title={question.createdAt || question.created_at}>
             Asked{" "}
             <span className="text-gray-900">
-              {new Date(question.createdAt).toLocaleDateString()}
+              {new Date(question.createdAt || question.created_at).toLocaleDateString()}
             </span>
           </span>
           <span className="flex gap-1">
             Modified <span className="text-gray-900">today</span>
           </span>
           <span className="flex gap-1">
-            Viewed <span className="text-gray-900">{question.views} times</span>
+            Viewed <span className="text-gray-900">{question.views || 0} times</span>
           </span>
         </div>
       </div>
@@ -84,7 +84,7 @@ const QuestionDetails = () => {
           <div className="flex gap-4 mb-8">
             <div className="flex-shrink-0 pt-1">
               <VoteButtons
-                initialVotes={question.votes}
+                initialVotes={question.votes || 0}
                 size="lg"
                 onVote={handleVoteQuestion}
               />
@@ -92,11 +92,11 @@ const QuestionDetails = () => {
 
             <div className="flex-1 min-w-0">
               <div className="prose prose-slate max-w-none text-gray-800 text-[15px] leading-relaxed whitespace-pre-line mb-6 break-words">
-                {question.description}
+                {question.description || question.body}
               </div>
 
               <div className="flex gap-2 flex-wrap mb-8">
-                {question.tags.map((tag) => (
+                {(question.tags || (question.topic ? [question.topic] : ["General"])).map((tag) => (
                   <Tag key={tag} name={tag} />
                 ))}
               </div>
@@ -117,7 +117,7 @@ const QuestionDetails = () => {
 
                 <div className="bg-blue-50/40 p-3 rounded-[3px] border border-blue-100">
                   <span className="text-xs text-gray-500 block mb-1">
-                    asked {new Date(question.createdAt).toLocaleDateString()}
+                    asked {new Date(question.createdAt || question.created_at).toLocaleDateString()}
                   </span>
                   <div className="flex items-center gap-2">
                     <div className="w-8 h-8 bg-blue-200 rounded-[3px]"></div>
@@ -126,7 +126,7 @@ const QuestionDetails = () => {
                         to="#"
                         className="text-blue-600 hover:text-blue-700 font-medium text-xs sm:text-sm"
                       >
-                        {question.author}
+                        {question.author || "Anonymous"}
                       </Link>
                       <span className="text-gray-500 text-[10px] font-bold">
                         1.2k{" "}
@@ -145,7 +145,7 @@ const QuestionDetails = () => {
           <div className="mt-8 pt-4">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-normal text-gray-800">
-                {question.answersCount}{" "}
+                {question.answersCount || 0}{" "}
                 {question.answersCount === 1 ? "Answer" : "Answers"}
               </h2>
               <div className="flex border border-gray-300 rounded-[3px] text-xs">
@@ -225,7 +225,7 @@ const QuestionDetails = () => {
               Watched Tags
             </h4>
             <div className="flex flex-wrap gap-2 mb-4">
-              {question.tags.map((t) => (
+              {(question.tags || (question.topic ? [question.topic] : ["General"])).map((t) => (
                 <Tag key={t} name={t} />
               ))}
             </div>

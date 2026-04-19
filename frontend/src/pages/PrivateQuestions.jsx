@@ -14,7 +14,7 @@ const PrivateQuestions = () => {
     useEffect(() => {
         const fetchPrivateQuestions = async () => {
             try {
-                const response = await axios.get(`/api/private-questions/user/${currentUser._id}`);
+                const response = await axios.get(`/api/private-questions/user/${currentUser._id || currentUser.id}`);
                 setQuestions(response.data);
             } catch (err) {
                 console.error("Failed to fetch private questions", err);
@@ -38,7 +38,7 @@ const PrivateQuestions = () => {
         try {
             const response = await axios.post(`/api/private-questions/${questionId}/answer`, {
                 text,
-                authorId: currentUser._id,
+                authorId: currentUser._id || currentUser.id,
                 authorName: currentUser.name
             });
 
@@ -54,31 +54,31 @@ const PrivateQuestions = () => {
 
     if (isLoading) return <div className="text-center mt-10">Loading...</div>;
 
-    const askedByMe = questions.filter(q => q.askedBy?._id === currentUser._id);
-    const sentToMe = questions.filter(q => q.visibleTo?._id === currentUser._id);
+    const askedByMe = questions.filter(q => (q.askedBy?._id || q.asked_by || q.askedBy) === (currentUser._id || currentUser.id));
+    const sentToMe = questions.filter(q => (q.visibleTo?._id || q.visible_to || q.visibleTo) === (currentUser._id || currentUser.id));
 
     const renderQuestionBox = (q) => {
-        const isExpanded = expandedId === q._id;
+        const isExpanded = expandedId === (q._id || q.id);
         return (
-            <div key={q._id} className="bg-white p-6 rounded-lg shadow border border-gray-200 hover:shadow-md transition-shadow">
+            <div key={q._id || q.id} className="bg-white p-6 rounded-lg shadow border border-gray-200 hover:shadow-md transition-shadow">
                 <div className="flex justify-between mb-2">
                     <h2 className="text-xl font-bold text-blue-600">{q.title}</h2>
                     <span className="text-xs text-gray-400">
                         {new Date(q.createdAt).toLocaleDateString()}
                     </span>
                 </div>
-                <p className="text-gray-700 mb-4">{q.description}</p>
+                <p className="text-gray-700 mb-4">{q.description || q.body}</p>
 
                 <div className="text-sm text-gray-500 flex justify-between items-center bg-gray-50 p-2 rounded">
-                    <span>Asked by: <strong>{q.askedBy?.name}</strong></span>
-                    <span>Visible to: <strong>{q.visibleTo?.name}</strong></span>
+                    <span>Asked by: <strong>{q.askedBy?.name || q.asked_by_name}</strong></span>
+                    <span>Visible to: <strong>{q.visibleTo?.name || q.visible_to_name}</strong></span>
                 </div>
 
                 <div className="mt-4 pt-4 border-t border-gray-100 pb-2">
                     <div className="flex justify-between items-center mb-4">
-                        <h3 className="font-bold text-gray-700 text-sm">{q.answers.length} Answers</h3>
+                        <h3 className="font-bold text-gray-700 text-sm">{(q.answers || []).length} Answers</h3>
                         <button
-                            onClick={() => setExpandedId(isExpanded ? null : q._id)}
+                            onClick={() => setExpandedId(isExpanded ? null : (q._id || q.id))}
                             className="text-xs font-bold text-blue-500 hover:underline"
                         >
                             {isExpanded ? "Collapse" : "Reply & View"}
@@ -89,8 +89,8 @@ const PrivateQuestions = () => {
                         <div className="space-y-3 mt-4">
                             {/* Answers List */}
                             <div className="space-y-2 max-h-60 overflow-y-auto pr-2 rounded bg-gray-50 p-3">
-                                {q.answers.length === 0 ? <p className="text-xs text-gray-500 italic">No answers yet.</p> : null}
-                                {q.answers.map((ans, idx) => (
+                                {(q.answers || []).length === 0 ? <p className="text-xs text-gray-500 italic">No answers yet.</p> : null}
+                                {(q.answers || []).map((ans, idx) => (
                                     <div key={idx} className="bg-white p-2 rounded shadow-sm border border-gray-100 text-sm">
                                         <span className="font-bold text-gray-800">{ans.authorName}: </span>
                                         <span className="text-gray-700">{ans.text}</span>
@@ -104,15 +104,15 @@ const PrivateQuestions = () => {
                                     type="text"
                                     placeholder="Type a reply..."
                                     className="flex-1 px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-teal-400 text-sm"
-                                    value={replyText[q._id] || ""}
-                                    onChange={(e) => handleReplyChange(q._id, e.target.value)}
+                                    value={replyText[q._id || q.id] || ""}
+                                    onChange={(e) => handleReplyChange(q._id || q.id, e.target.value)}
                                     onKeyDown={(e) => {
-                                        if (e.key === "Enter") submitReply(q._id);
+                                        if (e.key === "Enter") submitReply(q._id || q.id);
                                     }}
                                 />
                                 <button
-                                    onClick={() => submitReply(q._id)}
-                                    disabled={!replyText[q._id] || replyText[q._id].trim() === ""}
+                                    onClick={() => submitReply(q._id || q.id)}
+                                    disabled={!replyText[q._id || q.id] || replyText[q._id || q.id].trim() === ""}
                                     className="bg-[#0a95ff] text-white p-2 rounded shadow-sm hover:bg-[#0074cc] disabled:bg-blue-300"
                                 >
                                     <Send size={16} />

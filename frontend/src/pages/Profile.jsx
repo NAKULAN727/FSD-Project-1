@@ -36,7 +36,7 @@ const Profile = () => {
       setIsLoading(true);
       setError("");
 
-      const idToFetch = userId || currentUser?._id;
+      const idToFetch = userId || currentUser?._id || currentUser?.id;
 
       if (!idToFetch) {
         setIsLoading(false);
@@ -65,7 +65,7 @@ const Profile = () => {
     e.preventDefault();
     setIsSaving(true);
     try {
-      const response = await axios.put(`/api/users/profile/${profileUser._id}`, editFormData);
+      const response = await axios.put(`/api/users/profile/${profileUser._id || profileUser.id}`, editFormData);
       setProfileUser(response.data);
       setIsEditing(false);
     } catch (err) {
@@ -106,7 +106,7 @@ const Profile = () => {
     );
   }
 
-  const isOwnProfile = currentUser?._id === profileUser._id;
+  const isOwnProfile = (currentUser?._id || currentUser?.id) === (profileUser._id || profileUser.id);
 
   // Filter content for the user
   const userQuestions = questions.filter(
