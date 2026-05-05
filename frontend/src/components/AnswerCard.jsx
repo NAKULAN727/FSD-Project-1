@@ -7,7 +7,7 @@ const AnswerCard = ({ answer, onVote, onAccept, isQuestionAuthor }) => {
       className={`flex gap-4 py-6 border-b border-gray-200 last:border-0 transition-colors ${answer.accepted ? "bg-green-50/30" : "hover:bg-gray-50/50"}`}
     >
       <div className="flex flex-col items-center gap-2">
-        <VoteButtons initialVotes={answer.votes} size="md" onVote={onVote} />
+        <VoteButtons initialVotes={answer.votes || 0} size="md" onVote={onVote} />
 
         <div
           className={`mt-2 p-1 rounded-full cursor-pointer transition-colors ${answer.accepted ? "text-green-500" : "text-gray-300 hover:text-green-400"}`}
@@ -30,7 +30,7 @@ const AnswerCard = ({ answer, onVote, onAccept, isQuestionAuthor }) => {
 
       <div className="flex-1 min-w-0">
         <div className="prose prose-slate max-w-none text-gray-800 text-base leading-relaxed whitespace-pre-line">
-          {answer.text}
+          {answer.body || answer.text}
         </div>
 
         <div className="flex items-center justify-between mt-6 pt-4 border-t border-gray-100">
@@ -53,8 +53,8 @@ const AnswerCard = ({ answer, onVote, onAccept, isQuestionAuthor }) => {
                 {answer.author}
               </span>
               <span className="text-gray-500">
-                answered {new Date(answer.createdAt).toLocaleDateString()} at{" "}
-                {new Date(answer.createdAt).toLocaleTimeString([], {
+                answered {new Date(answer.created_at || answer.createdAt).toLocaleDateString()} at{" "}
+                {new Date(answer.created_at || answer.createdAt).toLocaleTimeString([], {
                   hour: "2-digit",
                   minute: "2-digit",
                 })}

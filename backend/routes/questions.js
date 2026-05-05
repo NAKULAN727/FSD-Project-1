@@ -113,7 +113,7 @@ router.patch("/:id/vote", async (req, res) => {
     const { value } = req.body;
     
     const result = await db.query(
-      "UPDATE questions SET votes = votes + $1 WHERE id = $2 RETURNING *",
+      "UPDATE questions SET votes = COALESCE(votes, 0) + $1 WHERE id = $2 RETURNING *",
       [value, id]
     );
     
@@ -129,15 +129,82 @@ router.patch("/:id/vote", async (req, res) => {
 // Vote in an Answer
 router.patch("/:id/answers/:answerId/vote", async (req, res) => {
   try {
-    const { answerId } = req.params;
+    const { id, answerId } = req.params;
     const { value } = req.body;
     
     await db.query(
-      "UPDATE answers SET votes = votes + $1 WHERE id = $2",
+      "UPDATE answers SET votes = COALESCE(votes, 0) + $1 WHERE id = $2",
       [value, answerId]
     );
     
-    res.status(200).json({ id: answerId, votes_updated: true });
+    // Fetch updated question with answers
+    const questionResult = await db.query(`
+      SELECT q.*, u.name as author
+      FROM questions q
+      LEFT JOIN users u ON q.user_id = u.id
+      WHERE q.id = $1
+    `, [id]);
+
+    const answersResult = await db.query(`
+      SELECT a.*, u.name as author
+      FROM answers a
+      LEFT JOIN users u ON a.user_id = u.id
+      WHERE a.question_id = $1
+      ORDER BY a.created_at ASC
+    `, [id]);
+
+    if (questionResult.rows.length === 0) return res.status(404).json({ error: "Question not found" });
+
+    const question = questionResult.rows[0];
+    question.answers = answersResult.rows;
+    question.answersCount = answersResult.rows.length;
+
+    res.status(200).json(question);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Accept an answer
+router.patch("/:id/answers/:answerId/accept", async (req, res) => {
+  try {
+    const { id, answerId } = req.params;
+
+    // Reset all answers for this question to not accepted
+    await db.query(
+      "UPDATE answers SET accepted = FALSE WHERE question_id = $1",
+      [id]
+    );
+
+    // Set the specific answer to accepted
+    await db.query(
+      "UPDATE answers SET accepted = TRUE WHERE id = $1",
+      [answerId]
+    );
+
+    // Fetch updated question with answers
+    const questionResult = await db.query(`
+      SELECT q.*, u.name as author
+      FROM questions q
+      LEFT JOIN users u ON q.user_id = u.id
+      WHERE q.id = $1
+    `, [id]);
+
+    const answersResult = await db.query(`
+      SELECT a.*, u.name as author
+      FROM answers a
+      LEFT JOIN users u ON a.user_id = u.id
+      WHERE a.question_id = $1
+      ORDER BY a.created_at ASC
+    `, [id]);
+
+    if (questionResult.rows.length === 0) return res.status(404).json({ error: "Question not found" });
+
+    const question = questionResult.rows[0];
+    question.answers = answersResult.rows;
+    question.answersCount = answersResult.rows.length;
+
+    res.status(200).json(question);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

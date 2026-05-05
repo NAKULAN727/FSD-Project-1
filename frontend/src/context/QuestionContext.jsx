@@ -81,7 +81,7 @@ export const QuestionProvider = ({ children }) => {
       );
       const updatedQuestion = await res.json();
       setQuestions((prev) =>
-        prev.map((q) => (q._id === updatedQuestion._id ? updatedQuestion : q)),
+        prev.map((q) => (q.id === updatedQuestion.id ? updatedQuestion : q)),
       );
     } catch (err) {
       console.error(err);
@@ -118,7 +118,7 @@ export const QuestionProvider = ({ children }) => {
       );
       const updatedQuestion = await res.json();
       setQuestions((prev) =>
-        prev.map((q) => (q._id === updatedQuestion._id ? updatedQuestion : q)),
+        prev.map((q) => (q.id === updatedQuestion.id ? updatedQuestion : q)),
       );
     } catch (err) {
       console.error(err);

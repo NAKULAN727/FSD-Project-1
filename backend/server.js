@@ -84,8 +84,12 @@ db.query("SELECT NOW()", async (err, res) => {
         body TEXT NOT NULL,
         question_id INTEGER REFERENCES questions(id) ON DELETE CASCADE,
         user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        votes INTEGER DEFAULT 0,
+        accepted BOOLEAN DEFAULT FALSE,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
+      ALTER TABLE answers ADD COLUMN IF NOT EXISTS votes INTEGER DEFAULT 0;
+      ALTER TABLE answers ADD COLUMN IF NOT EXISTS accepted BOOLEAN DEFAULT FALSE;
       CREATE TABLE IF NOT EXISTS discussions (
         id SERIAL PRIMARY KEY,
         title VARCHAR(255) NOT NULL,
