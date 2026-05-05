@@ -3,6 +3,10 @@ const router = express.Router();
 const db = require("../db");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const { OAuth2Client } = require("google-auth-library");
+const axios = require("axios");
+
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 // Register a new user
 router.post("/register", async (req, res) => {
@@ -76,7 +80,35 @@ router.post("/login", async (req, res) => {
 // Social Login (Google, Facebook, LinkedIn)
 router.post("/social-login", async (req, res) => {
   try {
-    const { email, name, provider } = req.body;
+    const { token: socialToken, provider } = req.body;
+    let email, name;
+
+    if (provider === "google") {
+      const googleRes = await axios.get(`https://www.googleapis.com/oauth2/v3/userinfo`, {
+        headers: { Authorization: `Bearer ${socialToken}` }
+      });
+      email = googleRes.data.email;
+      name = googleRes.data.name;
+    } else if (provider === "facebook") {
+      const fbRes = await axios.get(`https://graph.facebook.com/me?fields=name,email&access_token=${socialToken}`);
+      email = fbRes.data.email;
+      name = fbRes.data.name;
+    } else if (provider === "linkedin") {
+      // In a real app, you would exchange the code for an access token first
+      // But here we assume the frontend sends the access token
+      const liRes = await axios.get("https://api.linkedin.com/v2/me", {
+        headers: { Authorization: `Bearer ${socialToken}` }
+      });
+      const liEmailRes = await axios.get("https://api.linkedin.com/v2/emailAddress?q=members&projection=(elements*(handle~))", {
+        headers: { Authorization: `Bearer ${socialToken}` }
+      });
+      name = `${liRes.data.localizedFirstName} ${liRes.data.localizedLastName}`;
+      email = liEmailRes.data.elements[0]["handle~"].emailAddress;
+    }
+
+    if (!email) {
+      return res.status(400).json({ error: "Could not retrieve email from social provider" });
+    }
 
     // Check if user already exists
     let result = await db.query("SELECT * FROM users WHERE email = $1", [email]);
@@ -116,7 +148,8 @@ router.post("/social-login", async (req, res) => {
       provider
     });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error("Social Login Error:", error.message);
+    res.status(500).json({ error: "Social login failed. " + error.message });
   }
 });
 

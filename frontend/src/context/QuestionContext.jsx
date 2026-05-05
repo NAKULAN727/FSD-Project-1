@@ -7,7 +7,9 @@ export const useQuestions = () => useContext(QuestionContext);
 export const QuestionProvider = ({ children }) => {
   const [questions, setQuestions] = useState([]);
   const [discussions, setDiscussions] = useState([]);
-  const API = import.meta.env.VITE_API_URL;
+  const API = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
+    ? "http://localhost:5000"
+    : (import.meta.env.VITE_API_URL || "https://queryflow-backend-zhlg.onrender.com");
 
   const fetchQuestions = async () => {
     try {
