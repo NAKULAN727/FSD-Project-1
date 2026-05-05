@@ -18,25 +18,21 @@ const AskQuestionForm = () => {
 
     setIsSubmitting(true);
 
-    // Simulate Network Delay for better UX
-    setTimeout(() => {
-      const newQuestion = {
-        id: Date.now(),
-        title,
-        description: body,
-        tags: tags.split(",").map((t) => t.trim()),
-        votes: 0,
-        answersCount: 0,
-        author: currentUser?.name || "Anonymous", // Use context user
-        createdAt: new Date().toISOString(),
-        views: 0,
-        answers: [],
-      };
+    const questionData = {
+      title,
+      body,
+      user_id: currentUser?.id || currentUser?._id,
+      tags: tags.split(",").map((t) => t.trim()).filter(t => t !== ""),
+    };
 
-      addQuestion(newQuestion);
+    try {
+      await addQuestion(questionData);
       setIsSubmitting(false);
       navigate("/");
-    }, 500);
+    } catch (error) {
+      console.error("Failed to post question:", error);
+      setIsSubmitting(false);
+    }
   };
 
   return (

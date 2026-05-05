@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import AnswerCard from "../components/AnswerCard";
 import AnswerForm from "../components/AnswerForm";
@@ -9,12 +9,25 @@ import { useAuth } from "../context/AuthContext";
 
 const QuestionDetails = () => {
   const { id } = useParams();
-  const { questions, addAnswer, voteQuestion, voteAnswer, acceptAnswer } =
+  const { getQuestionById, addAnswer, voteQuestion, voteAnswer, acceptAnswer } =
     useQuestions();
   const { currentUser } = useAuth();
+  const [question, setQuestion] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  // Find question by _id (string) or id (number, for dummy data)
-  const question = questions.find((q) => q._id === id || q.id === parseInt(id));
+  useEffect(() => {
+    const fetchQuestion = async () => {
+      setLoading(true);
+      const data = await getQuestionById(id);
+      setQuestion(data);
+      setLoading(false);
+    };
+    fetchQuestion();
+  }, [id]);
+
+  if (loading) {
+    return <div className="p-10 text-center text-gray-400">Loading question...</div>;
+  }
 
   if (!question) {
     return (
@@ -24,16 +37,22 @@ const QuestionDetails = () => {
     );
   }
 
-  const handleAddAnswer = (text) => {
+  const handleAddAnswer = async (text) => {
     const newAnswer = {
-      text,
-      author: currentUser?.name || "Anonymous",
+      body: text,
+      user_id: currentUser?.id || currentUser?._id,
     };
-    addAnswer(question._id || question.id, newAnswer);
+    const updated = await addAnswer(question.id, newAnswer);
+    if (updated) {
+      setQuestion(updated);
+    }
   };
 
-  const handleVoteQuestion = (val) => {
-    voteQuestion(question._id || question.id, val);
+  const handleVoteQuestion = async (val) => {
+    const updated = await voteQuestion(question.id, val);
+    if (updated) {
+      setQuestion((prev) => ({ ...prev, votes: updated.votes }));
+    }
   };
 
   const handleVoteAnswer = (answerId, val) => {
@@ -129,7 +148,7 @@ const QuestionDetails = () => {
                         {question.author || "Anonymous"}
                       </Link>
                       <span className="text-gray-500 text-[10px] font-bold">
-                        1.2k{" "}
+                        {question.author_reputation || 0}{" "}
                         <span className="font-normal text-gray-400">
                           reputation
                         </span>

@@ -29,6 +29,16 @@ export const QuestionProvider = ({ children }) => {
     }
   };
 
+  const getQuestionById = async (id) => {
+    try {
+      const res = await fetch(`${API}/api/questions/${id}`);
+      return await res.json();
+    } catch (err) {
+      console.error(err);
+      return null;
+    }
+  };
+
   const addQuestion = async (questionData) => {
     try {
       const res = await fetch(`${API}/api/questions`, {
@@ -48,14 +58,16 @@ export const QuestionProvider = ({ children }) => {
       const res = await fetch(`${API}/api/questions/${questionId}/answers`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(answerData), // answerData should map to backend fields
+        body: JSON.stringify(answerData),
       });
       const updatedQuestion = await res.json();
       setQuestions((prev) =>
-        prev.map((q) => (q._id === updatedQuestion._id ? updatedQuestion : q)),
+        prev.map((q) => (q.id === updatedQuestion.id ? updatedQuestion : q)),
       );
+      return updatedQuestion;
     } catch (err) {
       console.error(err);
+      return null;
     }
   };
 
@@ -85,10 +97,12 @@ export const QuestionProvider = ({ children }) => {
       });
       const updatedQuestion = await res.json();
       setQuestions((prev) =>
-        prev.map((q) => (q._id === updatedQuestion._id ? updatedQuestion : q)),
+        prev.map((q) => (q.id === updatedQuestion.id ? updatedQuestion : q)),
       );
+      return updatedQuestion;
     } catch (err) {
       console.error(err);
+      return null;
     }
   };
 
@@ -148,6 +162,7 @@ export const QuestionProvider = ({ children }) => {
 
   const value = {
     questions,
+    getQuestionById,
     addQuestion,
     addAnswer,
     acceptAnswer,

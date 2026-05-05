@@ -6,7 +6,8 @@ const db = require("../db");
 router.get("/", async (req, res) => {
   try {
     const result = await db.query(`
-      SELECT q.*, u.name as author
+      SELECT q.*, u.name as author,
+             (SELECT COUNT(*) FROM answers a WHERE a.question_id = q.id) as "answersCount"
       FROM questions q
       LEFT JOIN users u ON q.user_id = u.id
       ORDER BY q.created_at DESC
@@ -21,18 +22,30 @@ router.get("/", async (req, res) => {
 router.get("/:id", async (req, res) => {
   try {
     const questionId = req.params.id;
-    const result = await db.query(`
+    const questionResult = await db.query(`
       SELECT q.*, u.name as author
       FROM questions q
       LEFT JOIN users u ON q.user_id = u.id
       WHERE q.id = $1
     `, [questionId]);
 
-    if (result.rows.length === 0) {
+    if (questionResult.rows.length === 0) {
       return res.status(404).json({ error: "Question not found" });
     }
 
-    res.status(200).json(result.rows[0]);
+    const answersResult = await db.query(`
+      SELECT a.*, u.name as author
+      FROM answers a
+      LEFT JOIN users u ON a.user_id = u.id
+      WHERE a.question_id = $1
+      ORDER BY a.created_at ASC
+    `, [questionId]);
+
+    const question = questionResult.rows[0];
+    question.answers = answersResult.rows;
+    question.answersCount = answersResult.rows.length;
+
+    res.status(200).json(question);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -41,16 +54,90 @@ router.get("/:id", async (req, res) => {
 // Insert question
 router.post("/", async (req, res) => {
   try {
-    const { title, body, user_id, topic } = req.body;
+    const { title, body, user_id, tags } = req.body;
     
     const insertSQL = `
-      INSERT INTO questions (title, body, user_id, topic)
+      INSERT INTO questions (title, body, user_id, tags)
       VALUES ($1, $2, $3, $4)
       RETURNING *
     `;
-    const result = await db.query(insertSQL, [title, body, user_id, topic]);
+    const result = await db.query(insertSQL, [title, body, user_id, tags]);
 
     res.status(201).json(result.rows[0]);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Add an answer
+router.post("/:id/answers", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { body, user_id } = req.body;
+    
+    await db.query(
+      "INSERT INTO answers (body, question_id, user_id) VALUES ($1, $2, $3)",
+      [body, id, user_id]
+    );
+    
+    // Fetch updated question with answers
+    const questionResult = await db.query(`
+      SELECT q.*, u.name as author
+      FROM questions q
+      LEFT JOIN users u ON q.user_id = u.id
+      WHERE q.id = $1
+    `, [id]);
+
+    const answersResult = await db.query(`
+      SELECT a.*, u.name as author
+      FROM answers a
+      LEFT JOIN users u ON a.user_id = u.id
+      WHERE a.question_id = $1
+      ORDER BY a.created_at ASC
+    `, [id]);
+
+    const question = questionResult.rows[0];
+    question.answers = answersResult.rows;
+    question.answersCount = answersResult.rows.length;
+
+    res.status(201).json(question);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Vote in a Question
+router.patch("/:id/vote", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { value } = req.body;
+    
+    const result = await db.query(
+      "UPDATE questions SET votes = votes + $1 WHERE id = $2 RETURNING *",
+      [value, id]
+    );
+    
+    if (result.rows.length === 0) return res.status(404).json({ error: "Question not found" });
+    
+    const question = result.rows[0];
+    res.status(200).json(question);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Vote in an Answer
+router.patch("/:id/answers/:answerId/vote", async (req, res) => {
+  try {
+    const { answerId } = req.params;
+    const { value } = req.body;
+    
+    await db.query(
+      "UPDATE answers SET votes = votes + $1 WHERE id = $2",
+      [value, answerId]
+    );
+    
+    res.status(200).json({ id: answerId, votes_updated: true });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

@@ -12,7 +12,7 @@ const Tags = () => {
   const filter = searchParams.get("filter");
 
   const filteredQuestions = filter
-    ? questions.filter((q) => q.tags.includes(filter))
+    ? questions.filter((q) => q.tags?.includes(filter) || q.topic === filter || q.topic?.includes(filter))
     : [];
 
   return (

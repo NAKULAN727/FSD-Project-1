@@ -48,8 +48,8 @@ const Groups = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {groups.map(group => {
-                    const isMember = group.members.includes(currentUser._id);
-                    const isPending = group.pendingMembers?.includes(currentUser._id);
+                    const isMember = group.members?.includes(currentUser._id || currentUser.id);
+                    const isPending = group.pendingMembers?.includes(currentUser._id || currentUser.id);
 
                     return (
                         <div key={group._id} className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
@@ -66,7 +66,7 @@ const Groups = () => {
                             <p className="text-sm text-gray-600 mb-4 line-clamp-3">{group.description}</p>
                             <div className="flex justify-between items-center text-xs text-gray-500 mb-4">
                                 <span>{group.category}</span>
-                                <span>{group.members.length} members</span>
+                                <span>{group.members?.length || 0} members</span>
                             </div>
 
                             {isMember ? (

@@ -70,10 +70,15 @@ db.query("SELECT NOW()", async (err, res) => {
         id SERIAL PRIMARY KEY,
         title VARCHAR(255) NOT NULL,
         body TEXT NOT NULL,
-        topic VARCHAR(255),
+        tags TEXT[],
         user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        votes INTEGER DEFAULT 0,
+        views INTEGER DEFAULT 0,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
+      ALTER TABLE questions ADD COLUMN IF NOT EXISTS votes INTEGER DEFAULT 0;
+      ALTER TABLE questions ADD COLUMN IF NOT EXISTS views INTEGER DEFAULT 0;
+      ALTER TABLE questions ADD COLUMN IF NOT EXISTS tags TEXT[];
       CREATE TABLE IF NOT EXISTS answers (
         id SERIAL PRIMARY KEY,
         body TEXT NOT NULL,
@@ -103,6 +108,21 @@ db.query("SELECT NOW()", async (err, res) => {
         visible_to INTEGER REFERENCES users(id) ON DELETE CASCADE,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
+      CREATE TABLE IF NOT EXISTS groups (
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(255) UNIQUE NOT NULL,
+        description TEXT,
+        category VARCHAR(255),
+        privacy VARCHAR(50) DEFAULT 'Public',
+        created_by INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+      CREATE TABLE IF NOT EXISTS group_members (
+        group_id INTEGER REFERENCES groups(id) ON DELETE CASCADE,
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        status VARCHAR(50) DEFAULT 'joined',
+        PRIMARY KEY (group_id, user_id)
+      );
     `;
     try {
       await db.query(sql);
@@ -127,7 +147,7 @@ app.use("/api/users", userRoutes);
 app.use("/api/private-questions", require("./routes/privateQuestions"));
 app.use("/api/answers", require("./routes/answers"));
 app.use("/api/comments", require("./routes/comments"));
-// app.use("/api/groups", require("./routes/groups")); // MongoDB groups code disabled
+app.use("/api/groups", require("./routes/groups"));
 
 // Server Startup
 const PORT = process.env.PORT || 5000;
