@@ -62,6 +62,26 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const socialLogin = async (socialData) => {
+    try {
+      const response = await axios.post("/api/auth/social-login", socialData);
+      const data = response.data;
+
+      setCurrentUser(data.user);
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
+
+      axios.defaults.headers.common["Authorization"] = `Bearer ${data.token}`;
+
+      return { success: true };
+    } catch (error) {
+      return {
+        success: false,
+        message: error.response?.data?.error || error.message || "Social login failed"
+      };
+    }
+  };
+
   const logout = () => {
     setCurrentUser(null);
     localStorage.removeItem("token");
@@ -74,6 +94,7 @@ export const AuthProvider = ({ children }) => {
     isLoading,
     login,
     register,
+    socialLogin,
     logout,
   };
 

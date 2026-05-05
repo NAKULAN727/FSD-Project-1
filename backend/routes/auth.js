@@ -73,6 +73,53 @@ router.post("/login", async (req, res) => {
   }
 });
 
+// Social Login (Google, Facebook, LinkedIn)
+router.post("/social-login", async (req, res) => {
+  try {
+    const { email, name, provider } = req.body;
+
+    // Check if user already exists
+    let result = await db.query("SELECT * FROM users WHERE email = $1", [email]);
+    let user;
+
+    if (result.rows.length === 0) {
+      // Create a new user if they don't exist
+      const insertSQL = `
+        INSERT INTO users (name, email, password)
+        VALUES ($1, $2, $3)
+        RETURNING *
+      `;
+      // Use a random password for social users
+      const randomPassword = Math.random().toString(36).slice(-10);
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(randomPassword, salt);
+      
+      const insertRes = await db.query(insertSQL, [name, email, hashedPassword]);
+      user = insertRes.rows[0];
+    } else {
+      user = result.rows[0];
+    }
+
+    // Create JWT
+    const token = jwt.sign(
+      { id: user.id },
+      process.env.JWT_SECRET || "fallback_secret",
+      { expiresIn: "7d" }
+    );
+
+    // Remove password from response
+    delete user.password;
+
+    res.status(200).json({
+      token,
+      user,
+      provider
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Get all users
 router.get("/users", async (req, res) => {
   try {

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, Navigate } from "react-router-dom";
 import { Facebook, Linkedin, Mail } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 
@@ -9,7 +9,11 @@ const Login = () => {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login, currentUser, socialLogin } = useAuth();
+  
+  if (currentUser) {
+    return <Navigate to="/home" replace />;
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -17,6 +21,26 @@ const Login = () => {
     setIsLoading(true);
 
     const result = await login(email, password);
+    if (result.success) {
+      navigate("/home");
+    } else {
+      setError(result.message);
+      setIsLoading(false);
+    }
+  };
+
+  const handleSocialLogin = async (provider) => {
+    setError("");
+    setIsLoading(true);
+
+    // Mock social data - in a real app, this would come from the OAuth provider
+    const mockSocialData = {
+      email: `demo_${provider}@example.com`,
+      name: `${provider.charAt(0).toUpperCase() + provider.slice(1)} Demo User`,
+      provider: provider
+    };
+
+    const result = await socialLogin(mockSocialData);
     if (result.success) {
       navigate("/home");
     } else {
@@ -61,13 +85,22 @@ const Login = () => {
 
           {/* Social Icons */}
           <div className="flex justify-center gap-4 mb-6">
-            <button className="flex items-center justify-center w-10 h-10 rounded-full bg-[#3b5998] text-white hover:opacity-90 transition-opacity">
+            <button 
+              onClick={() => handleSocialLogin("facebook")}
+              className="flex items-center justify-center w-10 h-10 rounded-full bg-[#3b5998] text-white hover:opacity-90 transition-opacity"
+            >
               <Facebook size={20} />
             </button>
-            <button className="flex items-center justify-center w-10 h-10 rounded-full bg-[#db4437] text-white hover:opacity-90 transition-opacity">
+            <button 
+              onClick={() => handleSocialLogin("google")}
+              className="flex items-center justify-center w-10 h-10 rounded-full bg-[#db4437] text-white hover:opacity-90 transition-opacity"
+            >
               <Mail size={20} />
             </button>
-            <button className="flex items-center justify-center w-10 h-10 rounded-full bg-[#0077b5] text-white hover:opacity-90 transition-opacity">
+            <button 
+              onClick={() => handleSocialLogin("linkedin")}
+              className="flex items-center justify-center w-10 h-10 rounded-full bg-[#0077b5] text-white hover:opacity-90 transition-opacity"
+            >
               <Linkedin size={20} />
             </button>
           </div>
